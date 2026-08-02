@@ -43,12 +43,12 @@ void encryption()
         1. Convert character into range 0-25 by subtracting 97 ('a').
         2. Add the key (shift).
         3. Apply modulo 26 to wrap around the alphabet.
-        4. Add 97 to convert back to lowercase characters.
+        4. Add 65 to convert back to uppercase characters.
     */
 
     for (int i = 0; i < plainText.length(); ++i)
     {
-        int value = ((static_cast<int>(plainText[i]) - 97 + key) % 26) + 97;
+        int value = ((static_cast<int>(plainText[i]) - 97 + key + 26) % 26) + 65;
         plainText[i] = static_cast<char>(value);
     }
 
@@ -59,6 +59,38 @@ void encryption()
 // Function for decryption
 void decryption()
 {
+    string cryptoText;
+    string temp = "";
+
+    // Getting the cryptotext from the user
+    cout << "Enter a string: ";
+    cin.ignore();
+    getline(cin, cryptoText);
+
+    //getting the appropriate key for decryption 
+    int key;
+    cout << "Enter the key to decrypt the message : " << endl;
+    cin >> key;
+
+    /*
+        Decryption Logic:
+        1. Convert character into range 0-25 by subtracting 65 ('A').
+        2. Sub the key (shift).
+        2.1 adding 26 to prevent the negative of numbers and also the value of modulo doesnt change 
+        3. Apply modulo 26 to wrap around the alphabet.
+        4. Add 97 to convert back to lowercase characters.
+    */
+
+    for (int i = 0; i < cryptoText.length(); ++i)
+    {
+        int value = ((static_cast<int>(cryptoText[i]) - 65 - key  + 26 ) % 26) + 97;
+        cryptoText[i] = static_cast<char>(value);
+    }
+
+    cout << "\nDecrypted message" << endl;
+    cout << cryptoText << endl;
+
+
     
 }
 
