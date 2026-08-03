@@ -3,25 +3,48 @@
 
 using namespace std;
 
-
-
-void decryption()
-{
-}
-
 // generating the key to match the plainText size
-string generateKey(string plainText, string key)
+string generateKey(string Text, string key)
 {
     int keyLength = key.length();
     string finalKey;
     int i = 0;
-    while (i < plainText.length())
+    while (i < Text.length())
     {
         finalKey += key[i % keyLength];
         i++;
     }
     return finalKey;
 }
+
+void decryption()
+{
+    string cryptoText;
+    string temp = "";
+
+    // Getting the cryptotext from the user
+    cout << "Enter a string: ";
+    cin.ignore();
+    getline(cin, cryptoText);
+
+    // Getting the input of key string
+    string key;
+    cin >> key;
+    key = generateKey(cryptoText, key);
+
+    string plainText ;
+
+    for ( int i = 0 ; i < key.size() ; i++){
+        int value = ((( ( static_cast<int>(cryptoText[i]) - 'A' ) - (( static_cast<int>(key[i])) - 'a')  ) + 26 )% 26 ) + 97 ;
+        plainText += static_cast<char>(value) ;
+    }
+
+    cout << "\nDecrypted text" << endl ;
+    cout << plainText << endl ;
+    
+}
+
+
 void encryption()
 {
     string plainText;
