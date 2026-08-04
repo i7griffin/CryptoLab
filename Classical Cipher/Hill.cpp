@@ -2,6 +2,22 @@
 #include <iostream>
 using namespace std;
 
+// Forward declarations of the functions
+string preprocessText(string text, int n);
+void inputKey2x2(int key[2][2]);
+void inputKey3x3(int key[3][3]);
+
+int determinant2x2(int key[2][2]);
+int determinant3x3(int key[3][3]);
+
+int gcd(int a, int b);
+int extendedEuclidean(int a, int b);
+int modInverse(int a);
+
+void multiply2x2(int key[2][2], int plain[2], int cipher[2]);
+void multiply3x3(int key[3][3], int plain[3], int cipher[3]);
+
+void inverseKey2x2(int key[2][2]);
 
 void encrypt2x2()
 {
@@ -41,10 +57,51 @@ void encrypt2x2()
 
     cout << "\nEncrypted Message : " << cipherText << endl;
 }
-void decrypt2x2();
+void decrypt2x2()
+{
+    string cipherText;
+    string plainText = "";
 
-void encrypt3x3(){
-    void encrypt3x3()
+    cout << "Enter the ciphertext: ";
+    cin.ignore();
+    getline(cin, cipherText);
+
+    cipherText = preprocessText(cipherText, 2);
+    // lowercase alphabet string is returned
+
+    int key[2][2];
+    inputKey2x2(key);
+
+    int det = determinant2x2(key);
+
+    if (gcd(det, 26) != 1)
+    {
+        cout << "Invalid Key Matrix" << endl;
+        return;
+    }
+
+    int plain[2];
+    int cipher[2];
+
+    for (int i = 0; i < cipherText.length(); i += 2)
+    {
+        cipher[0] = cipherText[i] - 'a';
+        cipher[1] = cipherText[i + 1] - 'a';
+
+        inverseKey2x2(key);
+        // the inverse key function directly modifies the key value
+
+        multiply2x2(key, cipher, plain);
+        //The values in 0th and 1st index of the plain array gets modifies directly from the function 
+        
+        plainText += (char)((plain[0] % 26 + 26) % 26 + 'a');
+        plainText += (char)((plain[1] % 26 + 26) % 26 + 'a');
+    }
+
+    cout << "\nDecrypted Message : " << plainText << endl;
+}
+
+void encrypt3x3()
 {
     string plainText;
     string cipherText = "";
@@ -84,7 +141,7 @@ void encrypt3x3(){
 
     cout << "\nEncrypted Message : " << cipherText << endl;
 }
-}
+
 void decrypt3x3();
 
 void inputKey2x2(int key[2][2])
@@ -100,21 +157,17 @@ void inputKey2x2(int key[2][2])
 }
 void inputKey3x3(int key[3][3]);
 
-int determinant2x2(int key[2][2]){
-    int det = key[0][0]*key[1][1] - key[0][1]*key[1][0] ;
-    return det ;
-}
-
-
-int determinant3x3(int key[3][3]){
-    int determinant3x3(int key[3][3])
+int determinant2x2(int key[2][2])
 {
-    int det = key[0][0] * (key[1][1] * key[2][2] - key[1][2] * key[2][1])
-            - key[0][1] * (key[1][0] * key[2][2] - key[1][2] * key[2][0])
-            + key[0][2] * (key[1][0] * key[2][1] - key[1][1] * key[2][0]);
-
+    int det = key[0][0] * key[1][1] - key[0][1] * key[1][0];
     return det;
 }
+
+int determinant3x3(int key[3][3])
+{
+    int det = key[0][0] * (key[1][1] * key[2][2] - key[1][2] * key[2][1]) - key[0][1] * (key[1][0] * key[2][2] - key[1][2] * key[2][0]) + key[0][2] * (key[1][0] * key[2][1] - key[1][1] * key[2][0]);
+
+    return det;
 }
 
 int gcd(int a, int b)
@@ -165,9 +218,34 @@ int extendedEuclidean(int a, int b)
     return (v0 % 26 + 26) % 26;
 }
 
-int modInverse(int a);
+int modInverse(int a)
+{
+    return extendedEuclidean(26, a);
+}
 
-bool inverseKey2x2(int key[2][2], int inverse[2][2]);
+void inverseKey2x2(int key[2][2])
+{
+    /*Inverse of a matrix a is obatined by divideing adjacent of matrix a
+    by the determinant of matrix a*/
+    int det = determinant2x2(key);
+
+    int temp;
+
+    temp = key[0][0];
+    key[0][0] = key[1][1]; // interchange
+    key[1][1] = temp;
+
+    key[0][1] = ((-(key[0][1]) % 26) + 26) % 26;
+    key[1][0] = ((-(key[1][0]) % 26) + 26) % 26;
+
+    int detInverse = modInverse(det);
+
+    key[0][0] = ((key[0][0] * detInverse) % 26 + 26) % 26;
+    key[0][1] = ((key[0][1] * detInverse) % 26 + 26) % 26;
+    key[1][0] = ((key[1][0] * detInverse) % 26 + 26) % 26;
+    key[1][1] = ((key[1][1] * detInverse) % 26 + 26) % 26;
+}
+
 bool inverseKey3x3(int key[3][3], int inverse[3][3]);
 
 string preprocessText(string text, int n)
@@ -205,22 +283,23 @@ void multiply2x2(int key[2][2], int plain[2], int cipher[2])
     cipher[1] = (key[1][0] * plain[0] + key[1][1] * plain[1]) % 26;
 }
 
-
 void multiply3x3(int key[3][3], int plain[3], int cipher[3])
 {
     cipher[0] = (key[0][0] * plain[0] +
                  key[0][1] * plain[1] +
-                 key[0][2] * plain[2]) % 26;
+                 key[0][2] * plain[2]) %
+                26;
 
     cipher[1] = (key[1][0] * plain[0] +
                  key[1][1] * plain[1] +
-                 key[1][2] * plain[2]) % 26;
+                 key[1][2] * plain[2]) %
+                26;
 
     cipher[2] = (key[2][0] * plain[0] +
                  key[2][1] * plain[1] +
-                 key[2][2] * plain[2]) % 26;
+                 key[2][2] * plain[2]) %
+                26;
 }
-
 
 int main()
 {
