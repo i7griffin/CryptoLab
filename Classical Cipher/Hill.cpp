@@ -79,17 +79,20 @@ void decrypt2x2()
         cout << "Invalid Key Matrix" << endl;
         return;
     }
+    
 
     int plain[2];
     int cipher[2];
+    
+    inverseKey2x2(key);
+    // the inverse key function directly modifies the key value
 
     for (int i = 0; i < cipherText.length(); i += 2)
     {
         cipher[0] = cipherText[i] - 'a';
         cipher[1] = cipherText[i + 1] - 'a';
 
-        inverseKey2x2(key);
-        // the inverse key function directly modifies the key value
+        
 
         multiply2x2(key, cipher, plain);
         //The values in 0th and 1st index of the plain array gets modifies directly from the function 
@@ -142,7 +145,52 @@ void encrypt3x3()
     cout << "\nEncrypted Message : " << cipherText << endl;
 }
 
-void decrypt3x3();
+void decrypt3x3(){
+    string cipherText;
+    string plainText = "";
+
+    cout << "Enter the ciphertext: ";
+    cin.ignore();
+    getline(cin, cipherText);
+
+    cipherText = preprocessText(cipherText,3);
+    // lowercase alphabet string is returned
+
+    int key[3][3];
+    inputKey3x3(key);
+
+    int det = determinant3x3(key);
+
+    if (gcd(det, 26) != 1)
+    {
+        cout << "Invalid Key Matrix" << endl;
+        return;
+    }
+    
+
+    int plain[3];
+    int cipher[3];
+    
+    inverseKey3x3(key);
+    // the inverse key function directly modifies the key value
+
+    for (int i = 0; i < cipherText.length(); i += 3)
+    {
+        cipher[0] = cipherText[i] - 'a';
+        cipher[1] = cipherText[i + 1] - 'a';
+        cipher[2] = cipherText[i + 2] - 'a' ;
+        
+
+        multiply3x3(key, cipher, plain);
+        //The values in 0th and 1st index of the plain array gets modifies directly from the function 
+        
+        plainText += (char)((plain[0] % 26 + 26) % 26 + 'a');
+        plainText += (char)((plain[1] % 26 + 26) % 26 + 'a');
+        plainText += (char)((plain[2] % 26 + 26) % 26 + 'a');
+    }
+
+    cout << "\nDecrypted Message : " << plainText << endl;
+}
 
 void inputKey2x2(int key[2][2])
 {
@@ -155,7 +203,17 @@ void inputKey2x2(int key[2][2])
         }
     }
 }
-void inputKey3x3(int key[3][3]);
+void inputKey3x3(int key[3][3])
+{
+    for(int i=0;i<3;i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            cout<<"Enter element "<<i<<" "<<j<<" : ";
+            cin>>key[i][j];
+        }
+    }
+}
 
 int determinant2x2(int key[2][2])
 {
@@ -246,7 +304,35 @@ void inverseKey2x2(int key[2][2])
     key[1][1] = ((key[1][1] * detInverse) % 26 + 26) % 26;
 }
 
-bool inverseKey3x3(int key[3][3], int inverse[3][3]);
+void inverseKey3x3(int key[3][3])
+{
+    int det = determinant3x3(key);
+    int detInverse = modInverse(det);
+
+    int adj[3][3];
+
+    // Cofactors 
+    adj[0][0] =  (key[1][1]*key[2][2] - key[1][2]*key[2][1]);
+    adj[0][1] = -(key[0][1]*key[2][2] - key[0][2]*key[2][1]);
+    adj[0][2] =  (key[0][1]*key[1][2] - key[0][2]*key[1][1]);
+
+    adj[1][0] = -(key[1][0]*key[2][2] - key[1][2]*key[2][0]);
+    adj[1][1] =  (key[0][0]*key[2][2] - key[0][2]*key[2][0]);
+    adj[1][2] = -(key[0][0]*key[1][2] - key[0][2]*key[1][0]);
+
+    adj[2][0] =  (key[1][0]*key[2][1] - key[1][1]*key[2][0]);
+    adj[2][1] = -(key[0][0]*key[2][1] - key[0][1]*key[2][0]);
+    adj[2][2] =  (key[0][0]*key[1][1] - key[0][1]*key[1][0]);
+
+    // Multiply by determinant inverse modulo 26
+    for(int i = 0; i < 3; i++)
+    {
+        for(int j = 0; j < 3; j++)
+        {
+            key[i][j] = ((adj[j][i] * detInverse) % 26 + 26) % 26;
+        }
+    }
+}
 
 string preprocessText(string text, int n)
 {
@@ -285,20 +371,20 @@ void multiply2x2(int key[2][2], int plain[2], int cipher[2])
 
 void multiply3x3(int key[3][3], int plain[3], int cipher[3])
 {
-    cipher[0] = (key[0][0] * plain[0] +
+    cipher[0] = (((key[0][0] * plain[0] +
                  key[0][1] * plain[1] +
                  key[0][2] * plain[2]) %
-                26;
+                26 ) + 26 ) % 26 ;
 
-    cipher[1] = (key[1][0] * plain[0] +
+    cipher[1] = (((key[1][0] * plain[0] +
                  key[1][1] * plain[1] +
                  key[1][2] * plain[2]) %
-                26;
+                26 ) + 26 ) % 26 ;
 
-    cipher[2] = (key[2][0] * plain[0] +
+    cipher[2] = (((key[2][0] * plain[0] +
                  key[2][1] * plain[1] +
                  key[2][2] * plain[2]) %
-                26;
+                26 ) + 26 ) % 26 ;
 }
 
 int main()
