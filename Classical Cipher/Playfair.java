@@ -1,7 +1,31 @@
 
 //Program to implement Playfair cipher 
 import java.util.Scanner ; 
-public class PlayFair {
+public class Playfair {
+
+    public static void encryption(Scanner scan_obj){
+    String plainText;
+
+    // Getting the plaintext from the user
+    System.out.println("Enter a string: ");
+    plainText= scan_obj.nextLine() ;
+    
+    plainText = plainText.replaceAll("[^A-Za-z]","") ;
+    plainText = plainText.toLowerCase() ;
+
+
+    String key;
+
+    // Getting the plaintext from the user
+    System.out.println("Enter the key to encrypt with  ");
+    key= scan_obj.nextLine() ;
+    //1st argument is to select what to remove and 2nd argument is to choose what to replace it with
+    //replaceAll preserves the order of the remaining characters 
+    key = key.replaceAll("[^A-Za-z]","") ;
+    key = key.toLowerCase() ;
+    
+
+    }
 
     public static void main(String[] args){
         int choice;
@@ -23,7 +47,7 @@ public class PlayFair {
         switch (choice)
         {
         case 1:
-            encryption();
+            encryption(scan_obj);
             break;
 
         case 2:
