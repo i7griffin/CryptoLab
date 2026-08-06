@@ -109,9 +109,39 @@ public class PlayFair {
             System.out.println();
         }
 
-
+        String cryptoText = "";
 
         //now is the actual playfair encryption part
+        for (int i = 0; i < finalPlainText.length(); i += 2) {
+            //stroing th efirst character and second character 
+            char first = finalPlainText.charAt(i);
+            char second = finalPlainText.charAt(i + 1);
+
+            //this function retuns the position of the respectic=ve letters in the keymatrix 
+            int[] pos1 = findPosition(key, first);
+            int[] pos2 = findPosition(key, second);
+
+            int row1 = pos1[0];
+            int col1 = pos1[1];
+
+            int row2 = pos2[0];
+            int col2 = pos2[1];
+
+            //if two elements are in the same column
+            if (col1 == col2) {
+                cryptoText += key[(row1++) % 4][col1];
+                cryptoText += key[(row2++) % 4][col2];
+            } //if two elements are in the same row 
+            else if (row1 == row2) {
+                cryptoText += key[row1][(col1++) % 4];
+                cryptoText += key[row2][(col2++) % 4];
+            } else {
+                cryptoText += key[row1][(col1++) % 4];
+                cryptoText += key[row2][(col2++) % 4];
+
+            }
+
+        }
 
     }
 
