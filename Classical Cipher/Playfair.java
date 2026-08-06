@@ -129,12 +129,12 @@ public class PlayFair {
 
             //if two elements are in the same column
             if (col1 == col2) {
-                cryptoText += key[(row1 + 1 ) % 5][col1];
+                cryptoText += key[(row1 + 1) % 5][col1];
                 cryptoText += key[(row2 + 1) % 5][col2];
             } //if two elements are in the same row 
             else if (row1 == row2) {
-                cryptoText += key[row1][(col1 + 1 ) % 5];
-                cryptoText += key[row2][(col2 + 1 ) % 5];
+                cryptoText += key[row1][(col1 + 1) % 5];
+                cryptoText += key[row2][(col2 + 1) % 5];
             } else //else the elements will take the horizontal opposite corners of the rectangle they form 
             {
                 cryptoText += key[row1][col2];
@@ -230,12 +230,12 @@ public class PlayFair {
 
             //if two elements are in the same column
             if (col1 == col2) {
-                plainText += key[(row1 - 1) % 5][col1];
-                plainText += key[(row2 - 1 ) % 5][col2];
+                plainText += key[(row1 + 4) % 5][col1];
+                plainText += key[(row2 + 4) % 5][col2];
             } //if two elements are in the same row 
             else if (row1 == row2) {
-                plainText += key[row1][(col1 - 1) % 5];
-                plainText += key[row2][(col2 - 1 ) % 5];
+                plainText += key[row1][(col1 + 4) % 5];
+                plainText += key[row2][(col2 + 4) % 5];
             } else //else the elements will take the horizontal opposite corners of the rectangle they form 
             {
                 plainText += key[row1][col2];
