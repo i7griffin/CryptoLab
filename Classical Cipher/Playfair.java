@@ -31,18 +31,27 @@ public class PlayFair {
 
         // It is make the plain text encryptable with playfair regulations
         String finalPlainText = "";
-        for (int i = 0; i < plainText.length(); i += 2) {
 
+        //this loop preprocessses the text to make it ready for encryption
+        for (int i = 0; i < plainText.length(); i += 2) {
+            if (i == plainText.length() - 1) {
+                finalPlainText += plainText.charAt(i);
+                break;
+            }
             if (plainText.charAt(i) == plainText.charAt(i + 1)) {
                 finalPlainText += plainText.charAt(i--);
                 finalPlainText += 'x';
             } else {
                 finalPlainText += plainText.charAt(i);
-                if (i < plainText.length()) {
-                    finalPlainText += plainText.charAt(i + 1);
-                }
+                finalPlainText += plainText.charAt(i + 1);
             }
         }
+
+        if (finalPlainText.length() % 2 != 0) {
+            finalPlainText += 'x';
+        }
+
+        System.out.println("Processed plaintext: " + finalPlainText);
 
         String keyString;
 
@@ -53,6 +62,8 @@ public class PlayFair {
         //replaceAll preserves the order of the remaining characters 
         keyString = keyString.replaceAll("[^A-Za-z]", "");
         keyString = keyString.toLowerCase();
+
+        //all j is swapped with i to make it into 5x5 matrix for encryption 
         keyString = keyString.replaceAll("j", "i");
 
         char[][] key = new char[5][5];
@@ -76,19 +87,31 @@ public class PlayFair {
 
         //this fills the remaining spaces with letters of the alphabet 
         //now the key matrix is ready for encryption 
-        String alpha = "abcdefghiklmnopqrstuwxyz";
-        for (int i = 0; i < alpha.length(); i++) {
-            if (!map.containsKey(keyString.charAt(i))) {
-                map.put(keyString.charAt(i), 1);
+        String alpha = "abcdefghiklmnopqrstuvwxyz";
+        for (int i = 0; i < 25; i++) {
+            System.out.println(i);
+            if (!map.containsKey(alpha.charAt(i))) {
+                map.put(alpha.charAt(i), 1);
                 if (b == 5) {
                     a++;
                     b = 0;
-                    key[a][b++] = keyString.charAt(i);
+                    key[a][b++] = alpha.charAt(i);
                 } else {
-                    key[a][b++] = keyString.charAt(i);
+                    key[a][b++] = alpha.charAt(i);
                 }
             }
         }
+
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                System.out.print(key[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+
+
+        //now is the actual playfair encryption part
 
     }
 
@@ -107,6 +130,7 @@ public class PlayFair {
 
             //function to get a integer input through scanner object
             choice = scan_obj.nextInt();
+            scan_obj.nextLine();
 
             switch (choice) {
                 case 1:
@@ -114,7 +138,6 @@ public class PlayFair {
                     break;
 
                 case 2:
-                    decryption();
                     break;
 
                 case 3:
