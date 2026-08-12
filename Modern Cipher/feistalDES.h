@@ -347,6 +347,30 @@ void feistelRound(string &left, string &right, string roundKey)
     right = newRight;
 }
 
+string undoInitialPermutation(string permuted)
+{
+    string original(permuted.length(), '0');
+    for (auto &pr : InitialPermutation)
+    {
+        int inputPos = pr.first;
+        int outputPos = pr.second;
+        original[inputPos - 1] = permuted[outputPos - 1];
+    }
+    return original;
+}
+
+string hexStream(string bits)
+{
+    string hexDigits = "0123456789ABCDEF";
+    string hexStr = "";
+    for (size_t i = 0; i + 4 <= bits.length(); i += 4)
+    {
+        int val = stoi(bits.substr(i, 4), nullptr, 2);
+        hexStr += hexDigits[val];
+    }
+    return hexStr;
+}
+
 void encryption()
 {
     string input = inputHex();
@@ -373,10 +397,35 @@ void encryption()
 
     cout << "\nCipher text before final permutation\n" << endl;
     cout << cipherText << endl;
+    cout << hexStream(cipherText) << endl;
 }
 
 void decryption()
 {
+    string input = inputHex();
+    string bitstream = bitStream(input);
+
+    cout << "\nThis is the converted bitstream input\n" << endl;
+    cout << bitstream << endl;
+
+    string left = bitstream.substr(0, bitstream.length() / 2);
+    string right = bitstream.substr(bitstream.length() / 2);
+
+    string key = inputKey();
+    vector<string> roundKeys = generateRoundKeys(key);
+
+    for (int round = 15; round >= 0; round--)
+    {
+        feistelRound(left, right, roundKeys[round]);
+        cout << "\nRound " << (16 - round) << " -> L: " << left << " R: " << right << endl;
+    }
+
+    string permutedPlain = right + left;
+    string originalBitstream = undoInitialPermutation(permutedPlain);
+
+    cout << "\nDecrypted plaintext\n" << endl;
+    cout << originalBitstream << endl;
+    cout << hexStream(originalBitstream) << endl;
 }
 
 #endif
