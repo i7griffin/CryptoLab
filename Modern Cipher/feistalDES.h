@@ -5,8 +5,11 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <cctype>
 
 using namespace std;
+
+//permutation s boxes
 
 vector<vector<int>> S1 = {
     {14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7},
@@ -64,7 +67,10 @@ vector<vector<int>> S8 = {
     {2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11}
 };
 
+
+
 unordered_map<int, int> InitialPermutation = {
+
     {58,1}, {60,2}, {62,3}, {64,4},
     {57,5}, {59,6}, {61,7}, {63,8},
 
@@ -90,52 +96,91 @@ unordered_map<int, int> InitialPermutation = {
     {1,61}, {3,62}, {5,63}, {7,64}
 };
 
-unordered_map<int, int> InversePermutation = {
-    {16, 1}, {7, 2},  {20, 3}, {21, 4},
-    {29, 5}, {12, 6}, {28, 7}, {17, 8},
+//permutation bos 
 
-    {1, 9},  {15, 10}, {23, 11}, {26, 12},
-    {5, 13}, {18, 14}, {31, 15}, {10, 16},
+//key = input value 
+//value = output value 
 
-    {2, 17}, {8, 18}, {24, 19}, {14, 20},
-    {32, 21}, {27, 22}, {3, 23}, {9, 24},
+unordered_map<int, int> PBox = {
 
-    {19, 25}, {13, 26}, {30, 27}, {6, 28},
-    {22, 29}, {11, 30}, {4, 31}, {25, 32}
+    {16,1}, {7,2},  {20,3}, {21,4},
+    {29,5}, {12,6}, {28,7}, {17,8},
+
+    {1,9},  {15,10}, {23,11}, {26,12},
+    {5,13}, {18,14}, {31,15}, {10,16},
+
+    {2,17}, {8,18}, {24,19}, {14,20},
+    {32,21}, {27,22}, {3,23}, {9,24},
+
+    {19,25}, {13,26}, {30,27}, {6,28},
+    {22,29}, {11,30}, {4,31}, {25,32}
 };
 
+
+//initial permutation 
 string initialPermutation(string plainText)
 {
-    string permutedString(plainText.length() + 1, '0');
-    for (int i = 0; i < (int)plainText.length(); i++)
+    string permutedString(64, '0');
+
+    for (int inputPos = 1; inputPos <= 64; inputPos++)
     {
-        if (InitialPermutation.find(i + 1) != InitialPermutation.end())
-        {
-            permutedString[InitialPermutation[i + 1]] = plainText[i];
-        }
+        int outputPos = InitialPermutation[inputPos];
+
+        permutedString[outputPos - 1] =
+            plainText[inputPos - 1];
     }
-    return permutedString.substr(1);
+
+    return permutedString;
 }
+
+
+// inverse initial permutation 
+string inverseInitialPermutation(string permuted)
+{
+    string original(64, '0');
+
+    for (int inputPos = 1; inputPos <= 64; inputPos++)
+    {
+        int outputPos = InitialPermutation[inputPos];
+
+        original[inputPos - 1] =
+            permuted[outputPos - 1];
+    }
+
+    return original;
+}
+
+
+//getting the input and converting it to hex 
 
 string inputHex()
 {
     string hex;
+
     cout << "Enter the plainText" << endl;
     cin >> hex;
+
     return hex;
 }
+
 
 string inputKey()
 {
     string key;
+
     cout << "Enter the Key" << endl;
     cin >> key;
+
     return key;
 }
+
+
+// converting hex to binary 
 
 string bitStream(string input)
 {
     string bitstream = "";
+
     for (char ch : input)
     {
         switch (toupper(ch))
@@ -156,161 +201,288 @@ string bitStream(string input)
             case 'D': bitstream += "1101"; break;
             case 'E': bitstream += "1110"; break;
             case 'F': bitstream += "1111"; break;
-            default: break;
+
+            default:
+                break;
         }
     }
+
     return bitstream;
 }
 
-void expansionScheme(string right, char (&postExpansionMatrix)[8][6])
+
+//expansion scheme 
+void expansionScheme(
+    string right,
+    char (&postExpansionMatrix)[8][6])
 {
     char preExpansionMatrix[8][4];
+
     int mover = 0;
+
+    // Divide 32-bit input into 8 groups of 4 bits
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            preExpansionMatrix[i][j] = right[mover++];
+            preExpansionMatrix[i][j] =
+                right[mover++];
         }
     }
 
+
+    // Expanding every 4-bit group to 6 bits
     for (int i = 0; i < 8; i++)
     {
         int prev_row = (i - 1 + 8) % 8;
         int next_row = (i + 1) % 8;
 
-        postExpansionMatrix[i][0] = preExpansionMatrix[prev_row][3];
-        postExpansionMatrix[i][1] = preExpansionMatrix[i][0];
-        postExpansionMatrix[i][2] = preExpansionMatrix[i][1];
-        postExpansionMatrix[i][3] = preExpansionMatrix[i][2];
-        postExpansionMatrix[i][4] = preExpansionMatrix[i][3];
-        postExpansionMatrix[i][5] = preExpansionMatrix[next_row][0];
+        postExpansionMatrix[i][0] =
+            preExpansionMatrix[prev_row][3];
+
+        postExpansionMatrix[i][1] =
+            preExpansionMatrix[i][0];
+
+        postExpansionMatrix[i][2] =
+            preExpansionMatrix[i][1];
+
+        postExpansionMatrix[i][3] =
+            preExpansionMatrix[i][2];
+
+        postExpansionMatrix[i][4] =
+            preExpansionMatrix[i][3];
+
+        postExpansionMatrix[i][5] =
+            preExpansionMatrix[next_row][0];
     }
 }
+
+
+
 
 string toBinary4(int value)
 {
     string bits = "";
+
     for (int b = 3; b >= 0; b--)
     {
-        bits += ((value >> b) & 1) ? '1' : '0';
+        bits += ((value >> b) & 1)
+                    ? '1'
+                    : '0';
     }
+
     return bits;
 }
+
+
+//s box substitution 
 
 string s_box(char (&postExpansionMatrix)[8][6])
 {
     string substitutedString = "";
-    string rowtemp;
-    string coltemp;
-    int row, col, value;
 
     for (int i = 0; i < 8; i++)
     {
+        string rowtemp = "";
+        string coltemp = "";
+
+        int row;
+        int col;
+        int value;
+
+
+        //row is the ombination of first and last bit 
+
         rowtemp += postExpansionMatrix[i][0];
         rowtemp += postExpansionMatrix[i][5];
+
         row = stoi(rowtemp, nullptr, 2);
+
+
+        // middle four bits are the column address 
 
         coltemp += postExpansionMatrix[i][1];
         coltemp += postExpansionMatrix[i][2];
         coltemp += postExpansionMatrix[i][3];
         coltemp += postExpansionMatrix[i][4];
+
         col = stoi(coltemp, nullptr, 2);
+
+
+        //choosing s box 
 
         switch (i)
         {
-            case 0: value = S1[row][col]; break;
-            case 1: value = S2[row][col]; break;
-            case 2: value = S3[row][col]; break;
-            case 3: value = S4[row][col]; break;
-            case 4: value = S5[row][col]; break;
-            case 5: value = S6[row][col]; break;
-            case 6: value = S7[row][col]; break;
-            case 7: value = S8[row][col]; break;
+            case 0:
+                value = S1[row][col];
+                break;
+
+            case 1:
+                value = S2[row][col];
+                break;
+
+            case 2:
+                value = S3[row][col];
+                break;
+
+            case 3:
+                value = S4[row][col];
+                break;
+
+            case 4:
+                value = S5[row][col];
+                break;
+
+            case 5:
+                value = S6[row][col];
+                break;
+
+            case 6:
+                value = S7[row][col];
+                break;
+
+            case 7:
+                value = S8[row][col];
+                break;
         }
 
-        substitutedString += toBinary4(value);
 
-        rowtemp = "";
-        coltemp = "";
+        // Convert 0-15 result to 4 bits
+        substitutedString +=
+            toBinary4(value);
     }
 
     return substitutedString;
 }
 
-string inversePermutation(string plainText)
+
+// p box permutation 
+string pBoxPermutation(string input)
 {
-    string permutedString(plainText.length(), '0');
-    for (int i = 0; i < (int)plainText.length(); i++)
+    string output(32, '0');
+
+    for (int inputPos = 1; inputPos <= 32; inputPos++)
     {
-        if (InversePermutation.find(i + 1) != InversePermutation.end())
-        {
-            permutedString[InversePermutation[i + 1] - 1] = plainText[i];
-        }
+        int outputPos = PBox[inputPos];
+
+        output[outputPos - 1] =
+            input[inputPos - 1];
     }
-    return permutedString;
+
+    return output;
 }
+
+
+//des round key generation 
 
 vector<string> generateRoundKeys(string key)
 {
+
     int PC1[56] = {
+
         57, 49, 41, 33, 25, 17, 9,
         1, 58, 50, 42, 34, 26, 18,
         10, 2, 59, 51, 43, 35, 27,
         19, 11, 3, 60, 52, 44, 36,
+
         63, 55, 47, 39, 31, 23, 15,
         7, 62, 54, 46, 38, 30, 22,
         14, 6, 61, 53, 45, 37, 29,
-        21, 13, 5, 28, 20, 12, 4};
+        21, 13, 5, 28, 20, 12, 4
+    };
 
+
+    
     int PC2[48] = {
+
         14, 17, 11, 24, 1, 5,
         3, 28, 15, 6, 21, 10,
         23, 19, 12, 4, 26, 8,
         16, 7, 27, 20, 13, 2,
+
         41, 52, 31, 37, 47, 55,
         30, 40, 51, 45, 33, 48,
         44, 49, 39, 56, 34, 53,
-        46, 42, 50, 36, 29, 32};
+        46, 42, 50, 36, 29, 32
+    };
+
+
+    
 
     int shifts[16] = {
+
         1, 1, 2, 2,
         2, 2, 2, 2,
         1, 2, 2, 2,
-        2, 2, 2, 1};
+        2, 2, 2, 1
+    };
 
+
+    // Convert hexadecimal key -> 64 bits
     string binaryKey = bitStream(key);
 
+
+    
+
     string permutedKey = "";
+
     for (int i = 0; i < 56; i++)
     {
-        permutedKey += binaryKey[PC1[i] - 1];
+        permutedKey +=
+            binaryKey[PC1[i] - 1];
     }
 
-    string C = permutedKey.substr(0, 28);
-    string D = permutedKey.substr(28, 28);
+
+    
+
+    string C =
+        permutedKey.substr(0, 28);
+
+    string D =
+        permutedKey.substr(28, 28);
+
 
     vector<string> roundKeys;
 
+
+    // --------------------------------------------------------
+    // Generate K1 ... K16
+    // --------------------------------------------------------
+
     for (int round = 0; round < 16; round++)
     {
+        // Circular LEFT shift C
         for (int i = 0; i < shifts[round]; i++)
         {
-            C = C.substr(1) + C[0];
+            C =
+                C.substr(1) + C[0];
         }
 
+
+        // Circular LEFT shift D
         for (int i = 0; i < shifts[round]; i++)
         {
-            D = D.substr(1) + D[0];
+            D =
+                D.substr(1) + D[0];
         }
 
+
+        // Combine C and D
         string CD = C + D;
+
+
+        // ----------------------------------------------------
+        // Apply PC-2
+        // ----------------------------------------------------
+
         string roundKey = "";
 
         for (int i = 0; i < 48; i++)
         {
-            roundKey += CD[PC2[i] - 1];
+            roundKey +=
+                CD[PC2[i] - 1];
         }
+
 
         roundKeys.push_back(roundKey);
     }
@@ -318,114 +490,323 @@ vector<string> generateRoundKeys(string key)
     return roundKeys;
 }
 
-void feistelRound(string &left, string &right, string roundKey)
+
+// ============================================================
+// FEISTEL ROUND
+// ============================================================
+
+void feistelRound(
+    string &left,
+    string &right,
+    string roundKey)
 {
+    // --------------------------------------------------------
+    // STEP 1
+    // Expand R from 32 -> 48 bits
+    // --------------------------------------------------------
+
     char postExpansionMatrix[8][6];
-    expansionScheme(right, postExpansionMatrix);
+
+    expansionScheme(
+        right,
+        postExpansionMatrix);
+
+
+    // --------------------------------------------------------
+    // STEP 2
+    // XOR expanded R with round key
+    // --------------------------------------------------------
 
     int idx = 0;
+
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 6; j++)
         {
-            char keyBit = (idx < (int)roundKey.length()) ? roundKey[idx] : '0';
-            postExpansionMatrix[i][j] = (char)(((postExpansionMatrix[i][j] - '0') ^ (keyBit - '0')) + '0');
+            char keyBit =
+                roundKey[idx];
+
+            postExpansionMatrix[i][j] =
+                (
+                    (
+                        postExpansionMatrix[i][j] - '0'
+                    )
+                    ^
+                    (
+                        keyBit - '0'
+                    )
+                )
+                + '0';
+
             idx++;
         }
     }
 
-    string substitutedString = s_box(postExpansionMatrix);
-    string pboxString = inversePermutation(substitutedString);
+
+    // --------------------------------------------------------
+    // STEP 3
+    // S-BOX
+    // 48 -> 32 bits
+    // --------------------------------------------------------
+
+    string substitutedString =
+        s_box(postExpansionMatrix);
+
+
+    // --------------------------------------------------------
+    // STEP 4
+    // P-BOX
+    // 32 -> 32 bits
+    // --------------------------------------------------------
+
+    string pboxString =
+        pBoxPermutation(substitutedString);
+
+
+    // --------------------------------------------------------
+    // STEP 5
+    // XOR with LEFT
+    // --------------------------------------------------------
 
     string newRight = "";
-    for (int i = 0; i < (int)pboxString.length(); i++)
+
+    for (int i = 0; i < 32; i++)
     {
-        newRight += (char)(((left[i] - '0') ^ (pboxString[i] - '0')) + '0');
+        newRight +=
+            (
+                (
+                    left[i] - '0'
+                )
+                ^
+                (
+                    pboxString[i] - '0'
+                )
+            )
+            + '0';
     }
 
+
+    
+
     left = right;
+
     right = newRight;
 }
 
-string undoInitialPermutation(string permuted)
-{
-    string original(permuted.length(), '0');
-    for (auto &pr : InitialPermutation)
-    {
-        int inputPos = pr.first;
-        int outputPos = pr.second;
-        original[inputPos - 1] = permuted[outputPos - 1];
-    }
-    return original;
-}
+
+
+
 
 string hexStream(string bits)
 {
-    string hexDigits = "0123456789ABCDEF";
+    string hexDigits =
+        "0123456789ABCDEF";
+
     string hexStr = "";
-    for (size_t i = 0; i + 4 <= bits.length(); i += 4)
+
+    for (size_t i = 0;
+         i + 4 <= bits.length();
+         i += 4)
     {
-        int val = stoi(bits.substr(i, 4), nullptr, 2);
-        hexStr += hexDigits[val];
+        int val =
+            stoi(
+                bits.substr(i, 4),
+                nullptr,
+                2
+            );
+
+        hexStr +=
+            hexDigits[val];
     }
+
     return hexStr;
 }
 
+
+
+
 void encryption()
 {
-    string input = inputHex();
-    string bitstream = bitStream(input);
+=
 
-    cout << "\nThis is the converted bitstream input\n" << endl;
+    string input =
+        inputHex();
+
+    string bitstream =
+        bitStream(input);
+
+
+    cout << "\nThis is the converted bitstream input\n"
+         << endl;
+
     cout << bitstream << endl;
 
-    string permutedString = initialPermutation(bitstream);
 
-    string left = permutedString.substr(0, permutedString.length() / 2);
-    string right = permutedString.substr(permutedString.length() / 2);
 
-    string key = inputKey();
-    vector<string> roundKeys = generateRoundKeys(key);
 
-    for (int round = 0; round < 16; round++)
+    string permutedString =
+        initialPermutation(bitstream);
+
+
+    
+
+    string left =
+        permutedString.substr(0, 32);
+
+    string right =
+        permutedString.substr(32, 32);
+
+
+   
+
+    string key =
+        inputKey();
+
+    vector<string> roundKeys =
+        generateRoundKeys(key);
+
+
+
+    for (int round = 0;
+         round < 16;
+         round++)
     {
-        feistelRound(left, right, roundKeys[round]);
-        cout << "\nRound " << (round + 1) << " -> L: " << left << " R: " << right << endl;
+        feistelRound(
+            left,
+            right,
+            roundKeys[round]
+        );
+
+        cout << "\nRound "
+             << round + 1
+             << " -> L: "
+             << left
+             << " R: "
+             << right
+             << endl;
     }
 
-    string cipherText = right + left;
 
-    cout << "\nCipher text before final permutation\n" << endl;
-    cout << cipherText << endl;
-    cout << hexStream(cipherText) << endl;
+
+    string cipherTextBeforeFinalPermutation =
+        right + left;
+
+
+    cout << "\nCipher text before final permutation\n"
+         << endl;
+
+    cout << cipherTextBeforeFinalPermutation
+         << endl;
+
+
+
+    string cipherTextBits =
+        inverseInitialPermutation(
+            cipherTextBeforeFinalPermutation
+        );
+
+
+    cout << "\nCipher text after final permutation\n"
+         << endl;
+
+    cout << cipherTextBits << endl;
+
+
+    // Binary -> Hexadecimal
+    cout << "\nCipher Text (HEX): "
+         << hexStream(cipherTextBits)
+         << endl;
 }
+
+
+
 
 void decryption()
 {
-    string input = inputHex();
-    string bitstream = bitStream(input);
 
-    cout << "\nThis is the converted bitstream input\n" << endl;
+
+    string input =
+        inputHex();
+
+    string bitstream =
+        bitStream(input);
+
+
+    cout << "\nThis is the converted bitstream input\n"
+         << endl;
+
     cout << bitstream << endl;
 
-    string left = bitstream.substr(0, bitstream.length() / 2);
-    string right = bitstream.substr(bitstream.length() / 2);
 
-    string key = inputKey();
-    vector<string> roundKeys = generateRoundKeys(key);
+ 
 
-    for (int round = 15; round >= 0; round--)
+    string permutedString =
+        initialPermutation(bitstream);
+
+
+
+    string left =
+        permutedString.substr(0, 32);
+
+    string right =
+        permutedString.substr(32, 32);
+
+
+    
+
+    string key =
+        inputKey();
+
+    vector<string> roundKeys =
+        generateRoundKeys(key);
+
+
+
+
+    for (int round = 15;
+         round >= 0;
+         round--)
     {
-        feistelRound(left, right, roundKeys[round]);
-        cout << "\nRound " << (16 - round) << " -> L: " << left << " R: " << right << endl;
+        feistelRound(
+            left,
+            right,
+            roundKeys[round]
+        );
+
+        cout << "\nRound "
+             << (16 - round)
+             << " -> L: "
+             << left
+             << " R: "
+             << right
+             << endl;
     }
 
-    string permutedPlain = right + left;
-    string originalBitstream = undoInitialPermutation(permutedPlain);
 
-    cout << "\nDecrypted plaintext\n" << endl;
-    cout << originalBitstream << endl;
-    cout << hexStream(originalBitstream) << endl;
+
+    string permutedPlain =
+        right + left;
+
+
+
+    string originalBitstream =
+        inverseInitialPermutation(
+            permutedPlain
+        );
+
+
+    cout << "\nDecrypted plaintext\n"
+         << endl;
+
+    cout << originalBitstream
+         << endl;
+
+
+    // Binary -> HEX
+    cout << "\nPlaintext (HEX): "
+         << hexStream(originalBitstream)
+         << endl;
 }
+
 
 #endif
