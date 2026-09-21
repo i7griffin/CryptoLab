@@ -178,6 +178,11 @@ string stateToHex(uint8_t state[4][4])
 {
     stringstream ss;
 
+    /*uppercase	                               Use uppercase letters A–F
+      hex	                                   Display integers in hexadecimal
+      setfill('0')	                           Pad unused width with zeros*/
+
+
     ss << uppercase << hex << setfill('0');
 
     for(int col = 0; col < 4; col++)
@@ -213,7 +218,7 @@ void printState(uint8_t state[4][4])
 }
 
 
-
+/*the process of add round key is the elements of the matrix is XORed with the state matrix */
 void addRoundKey(
     uint8_t state[4][4],
     uint8_t roundKey[4][4])
@@ -229,7 +234,6 @@ void addRoundKey(
 
 
 //sub bytes operation 
-
 void subBytes(uint8_t state[4][4])
 {
     for(int row = 0; row < 4; row++)
@@ -238,7 +242,10 @@ void subBytes(uint8_t state[4][4])
         {
             uint8_t value = state[row][col];
 
+            //extracting the upper nibble (by shifting right first and then Xoring with 0000 1111)
             int high = (value >> 4) & 0x0F;
+
+            //extracting the lower nibble (byXoring with 0000 1111)
             int low  = value & 0x0F;
 
             state[row][col] = SBox[high][low];
@@ -248,7 +255,6 @@ void subBytes(uint8_t state[4][4])
 
 
 //inverse sub bytes operation 
-
 void inverseSubBytes(uint8_t state[4][4])
 {
     for(int row = 0; row < 4; row++)
@@ -257,7 +263,10 @@ void inverseSubBytes(uint8_t state[4][4])
         {
             uint8_t value = state[row][col];
 
+            //extracting the upper nibble (by shifting right first and then Xoring with 0000 1111)
             int high = (value >> 4) & 0x0F;
+
+            //extracting the lower nibble (byXoring with 0000 1111)
             int low  = value & 0x0F;
 
             state[row][col] = inverseSBox[high][low];
@@ -267,7 +276,6 @@ void inverseSubBytes(uint8_t state[4][4])
 
 
 //shift rows operation 
-
 void shiftRows(uint8_t state[4][4])
 {
     uint8_t temp[4][4];
@@ -276,8 +284,7 @@ void shiftRows(uint8_t state[4][4])
     {
         for(int col = 0; col < 4; col++)
         {
-            temp[row][col] =
-                state[row][(col + row) % 4];
+            temp[row][col] = state[row][(col + row) % 4];
         }
     }
 
@@ -317,13 +324,12 @@ void inverseShiftRows(uint8_t state[4][4])
 
 
 // MULTIPLY BY 2 IN GF(2^8)
-
-
 uint8_t xtime(uint8_t value)
 {
     uint8_t result = value << 1;
 
-    if(value & 0x80) result ^= 0x1B;
+    if(value & 0x80) 
+    result ^= 0x1B;
 
     return result;
 }
@@ -362,26 +368,13 @@ void mixColumns(uint8_t state[4][4])
         uint8_t a2 = state[2][col];
         uint8_t a3 = state[3][col];
 
-        state[0][col] =
-            galoisMultiply(a0, 2) ^
-            galoisMultiply(a1, 3) ^
-            a2 ^ a3;
+        state[0][col] = galoisMultiply(a0, 2) ^ galoisMultiply(a1, 3) ^ a2 ^ a3;
 
-        state[1][col] =
-            a0 ^
-            galoisMultiply(a1, 2) ^
-            galoisMultiply(a2, 3) ^
-            a3;
+        state[1][col] = a0 ^ galoisMultiply(a1, 2) ^ galoisMultiply(a2, 3) ^ a3;
 
-        state[2][col] =
-            a0 ^ a1 ^
-            galoisMultiply(a2, 2) ^
-            galoisMultiply(a3, 3);
+        state[2][col] = a0 ^ a1 ^ galoisMultiply(a2, 2) ^ galoisMultiply(a3, 3);
 
-        state[3][col] =
-            galoisMultiply(a0, 3) ^
-            a1 ^ a2 ^
-            galoisMultiply(a3, 2);
+        state[3][col] = galoisMultiply(a0, 3) ^ a1 ^ a2 ^ galoisMultiply(a3, 2);
     }
 }
 
@@ -438,21 +431,18 @@ void rotWord(uint8_t word[4])
 
 
 //sub word 
-
 void subWord(uint8_t word[4])
 {
     for(int i = 0; i < 4; i++)
     {
         uint8_t value = word[i];
 
-        word[i] =
-            SBox[(value >> 4) & 0x0F][value & 0x0F];
+        word[i] =  SBox[(value >> 4) & 0x0F][value & 0x0F];
     }
 }
 
 
 //key expansion preocess to generate round keys
-
 vector<uint8_t> generateRoundKeys(string key)
 {
     if(key.length() != 32)
